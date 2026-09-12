@@ -48,9 +48,9 @@ let textToTranslate = "Tengo un problema con el código y necesito ayuda"
 
 let modelKey = "qwen/qwen3-1.7b"
 
-let url_path = "http://127.0.0.1:1234/api/v1/"
-let modelsURL = URL(string: url_path + "models")!
-let chat_url = URL(string: url_path + "chat")!
+let urlPath = "http://127.0.0.1:1234/api/v1/"
+let modelsURL = URL(string: urlPath + "models")!
+let chatURL = URL(string: urlPath + "chat")!
 
 let prompt = """
 Translate the following text from \(sourceLanguage) to \(targetLanguage).
@@ -84,7 +84,7 @@ do {
     }
 
     // 2. Translation request
-    var chatRequest = URLRequest(url: chat_url)
+    var chatRequest = URLRequest(url: chatURL)
 
     chatRequest.httpMethod = "POST"
 
@@ -95,17 +95,17 @@ do {
 
     chatRequest.httpBody = try JSONEncoder().encode(body)
 
-    let (post_data, _) = try await URLSession.shared.data(
+    let (postData, _) = try await URLSession.shared.data(
         for: chatRequest
     )
 
-    let post_results = try JSONDecoder().decode(
+    let postResults = try JSONDecoder().decode(
         OutputResponse.self,
-        from: post_data
+        from: postData
     )
 
-    guard let message = post_results.output.first(where: {
-        $0.type == "message"
+    guard let message = postResults.output.first(where: { postResult in
+        postResult.type == "message"
     }) else {
         print("Error: LM Studio didn't return any message")
         exit(1)

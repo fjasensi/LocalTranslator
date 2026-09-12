@@ -4,7 +4,7 @@
 
 LocalTranslator is a macOS Swift command-line application using Foundation, with no third-party package dependencies.
 
-- `LocalTranslator/main.swift` contains the entry point, `Codable` request/response models, translation settings, and asynchronous HTTP calls. It checks for a loaded model before requesting a translation.
+- `LocalTranslator/main.swift` contains the entry point, request/response models, translation settings, and asynchronous HTTP calls. It checks for a loaded model before requesting a translation.
 - `LocalTranslator.xcodeproj/` defines the `LocalTranslator` target and scheme, with Debug and Release configurations.
 - There are currently no test directories or bundled assets. Add application source files under `LocalTranslator/`; keep generated build products outside the repository.
 
@@ -31,9 +31,9 @@ Replace `Debug` with `Release` for an optimized build. No automated test command
 
 ## Coding Style & Naming Conventions
 
-Use four-space indentation, braces on the declaration line, and multiline formatting for longer calls. Follow the existing `UpperCamelCase` type names, such as `ChatRequest`, and existing snake_case variable names, such as `model_name`. Preserve API field names such as `loaded_instances`, or map them explicitly with `CodingKeys` when renaming properties.
+Use four-space indentation, braces on the declaration line, and multiline formatting for longer calls. Use `UpperCamelCase` for types (`ChatRequest`) and `lowerCamelCase` for variables, properties, and functions (`modelKey`, `isLoaded`). Preserve uppercase initialisms (`chatURL`). Preserve JSON keys with explicit `CodingKeys` mappings, such as `loadedInstances = "loaded_instances"`.
 
-Prefer `let`, `Codable`, and `async`/`await`, consistent with the current implementation. No formatter or linter is configured; match surrounding code and avoid unrelated formatting changes.
+Prefer `let` and `async`/`await`. Use `Encodable` for request bodies, `Decodable` for responses, and `Codable` when both directions are needed. No formatter or linter is configured; match surrounding formatting and avoid unrelated changes.
 
 ## Testing Guidelines
 
@@ -41,7 +41,7 @@ There is no test framework, test target, or coverage threshold. For behavior cha
 
 ## Commit & Pull Request Guidelines
 
-The two existing commits use plain descriptive subjects, including `Initial Commit`; no structured convention is established. Write concise subjects describing the change. Pull requests should explain the behavior change, link relevant issues, and include build/manual verification results and console output when useful. Avoid unrelated `xcuserdata` or signing-setting changes.
+Existing commits use plain descriptive subjects, including `Initial Commit`; no structured convention is established. Write concise subjects describing the change. Pull requests should explain the behavior change, link relevant issues, and include build/manual verification results and console output when useful. Avoid unrelated `xcuserdata` or signing-setting changes.
 
 ## Local Configuration
 
