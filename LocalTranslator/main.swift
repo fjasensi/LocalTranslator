@@ -1,60 +1,72 @@
 import Foundation
 
-struct ModelsResponse: Codable {
+struct ModelsResponse: Decodable {
     let models: [Model]
 }
 
-struct OutputResponse: Codable {
+struct OutputResponse: Decodable {
     let output: [Output]
 }
 
-struct Output: Codable {
+struct Output: Decodable {
     let type: String
     let content: String
 }
 
-struct Model: Codable {
+struct Model: Decodable {
     let type: String
     let publisher: String
     let key: String
-    let display_name: String
-    let loaded_instances: [LoadedInstances]
+    let displayName: String
+    let loadedInstances: [LoadedInstance]
+    
+    var isLoaded: Bool {
+        !loadedInstances.isEmpty
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case type
+        case publisher
+        case key
+        case displayName = "display_name"
+        case loadedInstances = "loaded_instances"
+    }
 }
 
-struct ChatRequest: Codable {
+struct ChatRequest: Encodable {
     let model: String
     let input: String
 }
 
-struct LoadedInstances: Codable {
+struct LoadedInstance: Decodable {
     let id: String
 }
 
-let origin_language = "spanish"
-let destination_language = "english"
-let text_to_translate = "Tengo un problema con el código y necesito ayuda"
+let sourceLanguage = "spanish"
+let targetLanguage = "english"
+let textToTranslate = "Tengo un problema con el código y necesito ayuda"
 
-let model_name = "qwen/qwen3-1.7b"
+let modelKey = "qwen/qwen3-1.7b"
 
 let url_path = "http://127.0.0.1:1234/api/v1/"
-let model_url = URL(string: url_path + "models")!
+let modelsURL = URL(string: url_path + "models")!
 let chat_url = URL(string: url_path + "chat")!
 
 let prompt = """
-Translate the following text from \(origin_language) to \(destination_language).
+Translate the following text from \(sourceLanguage) to \(targetLanguage).
 Return only the translation.
 /no_think
-\(text_to_translate)
+\(textToTranslate)
 """
 
 let body = ChatRequest(
-    model: model_name,
+    model: modelKey,
     input: prompt
 )
 
 do {
     // 1. Check model
-    var request = URLRequest(url: model_url)
+    var request = URLRequest(url: modelsURL)
     request.httpMethod = "GET"
 
     let (data, _) = try await URLSession.shared.data(for: request)
@@ -64,28 +76,27 @@ do {
         from: data
     )
 
-    guard results.models.contains(where: {
-        $0.key == model_name &&
-        !$0.loaded_instances.isEmpty
+    guard results.models.contains(where: { model in
+        model.key == modelKey && model.isLoaded
     }) else {
-        print("Error: the model \(model_name) is not loaded in LM Studio")
+        print("Error: the model \(modelKey) is not loaded in LM Studio")
         exit(1)
     }
 
     // 2. Translation request
-    var post_request = URLRequest(url: chat_url)
+    var chatRequest = URLRequest(url: chat_url)
 
-    post_request.httpMethod = "POST"
+    chatRequest.httpMethod = "POST"
 
-    post_request.setValue(
+    chatRequest.setValue(
         "application/json",
         forHTTPHeaderField: "Content-Type"
     )
 
-    post_request.httpBody = try JSONEncoder().encode(body)
+    chatRequest.httpBody = try JSONEncoder().encode(body)
 
     let (post_data, _) = try await URLSession.shared.data(
-        for: post_request
+        for: chatRequest
     )
 
     let post_results = try JSONDecoder().decode(
