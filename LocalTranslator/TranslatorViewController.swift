@@ -1,8 +1,47 @@
 import AppKit
 
+private enum TranslationDirection: Equatable {
+    case englishToSpanish
+    case spanishToEnglish
+
+    var sourceLanguage: String {
+        switch self {
+        case .englishToSpanish:
+            return "english"
+        case .spanishToEnglish:
+            return "spanish"
+        }
+    }
+
+    var targetLanguage: String {
+        switch self {
+        case .englishToSpanish:
+            return "spanish"
+        case .spanishToEnglish:
+            return "english"
+        }
+    }
+
+    var sourceDisplayName: String {
+        self == .englishToSpanish ? "English" : "Spanish"
+    }
+
+    var targetDisplayName: String {
+        self == .englishToSpanish ? "Spanish" : "English"
+    }
+
+    var arrow: String {
+        self == .englishToSpanish ? "→" : "←"
+    }
+
+    var toggled: TranslationDirection {
+        self == .englishToSpanish ? .spanishToEnglish : .englishToSpanish
+    }
+}
+
 final class TranslatorViewController: NSViewController {
     private let client: LMStudioClient
-    private var isEnglishToSpanish = true
+    private var translationDirection: TranslationDirection = .englishToSpanish
     private let sourceLanguageLabel = NSTextField(labelWithString: "English")
     private let targetLanguageLabel = NSTextField(labelWithString: "Spanish")
     private let directionButton = NSButton(title: "→", target: nil, action: nil)
@@ -170,10 +209,10 @@ final class TranslatorViewController: NSViewController {
     }
 
     @objc private func toggleDirection() {
-        isEnglishToSpanish.toggle()
-        sourceLanguageLabel.stringValue = isEnglishToSpanish ? "English" : "Spanish"
-        targetLanguageLabel.stringValue = isEnglishToSpanish ? "Spanish" : "English"
-        directionButton.title = isEnglishToSpanish ? "→" : "←"
+        translationDirection = translationDirection.toggled
+        sourceLanguageLabel.stringValue = translationDirection.sourceDisplayName
+        targetLanguageLabel.stringValue = translationDirection.targetDisplayName
+        directionButton.title = translationDirection.arrow
         statusLabel.stringValue = "Ready"
         outputTextView.string = ""
     }
@@ -194,8 +233,7 @@ final class TranslatorViewController: NSViewController {
             return
         }
 
-        let sourceLanguage = isEnglishToSpanish ? "english" : "spanish"
-        let targetLanguage = isEnglishToSpanish ? "spanish" : "english"
+        let direction = translationDirection
 
         translateButton.isEnabled = false
         clearButton.isEnabled = false
@@ -206,8 +244,8 @@ final class TranslatorViewController: NSViewController {
             do {
                 let result = try await client.translate(
                     text,
-                    from: sourceLanguage,
-                    to: targetLanguage
+                    from: direction.sourceLanguage,
+                    to: direction.targetLanguage
                 )
 
                 await MainActor.run {
