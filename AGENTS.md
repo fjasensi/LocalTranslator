@@ -2,11 +2,13 @@
 
 ## Project Structure & Module Organization
 
-LocalTranslator is a macOS Swift command-line application using Foundation, with no third-party package dependencies.
+LocalTranslator is a macOS Swift menu bar application using AppKit, Carbon, and Foundation, with no third-party package dependencies.
 
-- `LocalTranslator/main.swift` contains the entry point, request/response models, translation settings, and asynchronous HTTP calls. It checks for a loaded model before requesting a translation.
-- `LocalTranslator.xcodeproj/` defines the `LocalTranslator` target and scheme, with Debug and Release configurations.
-- There are currently no test directories or bundled assets. Add application source files under `LocalTranslator/`; keep generated build products outside the repository.
+- `LocalTranslator/main.swift` starts the accessory application.
+- `LocalTranslator/AppDelegate.swift`, `GlobalHotKey.swift`, and `TranslatorViewController.swift` implement the status item, global ⌥T shortcut, popover UI, language direction selector, and translation actions.
+- `LocalTranslator/LMStudioClient.swift` contains the Codable API models and asynchronous LM Studio client.
+- `Resources/Assets.xcassets/` contains the generated application icon variants; `Info.plist` configures the menu bar-only bundle.
+- `LocalTranslator.xcodeproj/` defines the `LocalTranslator` application target and scheme.
 
 ## Build, Test, and Development Commands
 
@@ -23,11 +25,11 @@ xcodebuild -project LocalTranslator.xcodeproj -scheme LocalTranslator \
   -configuration Debug -derivedDataPath /tmp/LocalTranslator-build \
   CODE_SIGNING_ALLOWED=NO build
 
-# Run after configuring LM Studio.
-/tmp/LocalTranslator-build/Build/Products/Debug/LocalTranslator
+# Launch the menu bar app after configuring LM Studio.
+open /tmp/LocalTranslator-build/Build/Products/Debug/LocalTranslator.app
 ```
 
-Replace `Debug` with `Release` for an optimized build. No automated test command is configured.
+Replace `Debug` with `Release` for an optimized build. The app appears in the menu bar and opens with ⌥T. No automated test command is configured.
 
 ## Coding Style & Naming Conventions
 
@@ -37,7 +39,7 @@ Prefer `let` and `async`/`await`. Use `Encodable` for request bodies, `Decodable
 
 ## Testing Guidelines
 
-There is no test framework, test target, or coverage threshold. For behavior changes, build and manually check successful translation, an unloaded model, and an unavailable server. Confirm successful output contains only the trimmed translation. Record the checks and observed results in the pull request. If adding automated tests, document their target, framework, and execution command.
+There is no test framework, test target, or coverage threshold. For behavior changes, build and manually check opening from the menu bar and ⌥T, both language directions, successful translation, an unloaded model, and an unavailable server. Confirm successful output contains only the trimmed translation. Record the checks and observed results in the pull request. If adding automated tests, document their target, framework, and execution command.
 
 ## Commit & Pull Request Guidelines
 
@@ -45,4 +47,4 @@ Existing commits use plain descriptive subjects, including `Initial Commit`; no 
 
 ## Local Configuration
 
-Start LM Studio's local server at `http://127.0.0.1:1234` and load `qwen/qwen3-1.7b`. Model, endpoint, languages, and input text are constants in `main.swift`; adjust them for local experiments. Use nonsensitive sample text in committed changes.
+Start LM Studio's local server at `http://127.0.0.1:1234` and load `qwen/qwen3-1.7b`. The endpoint and model are configured in `AppDelegate.swift`; the active languages and text are selected in `TranslatorViewController.swift`. Use nonsensitive sample text in committed changes.

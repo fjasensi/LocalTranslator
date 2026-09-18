@@ -1,0 +1,10 @@
+.DS_Store
+
+# Xcode user and build data
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+
+# Local release artifacts
+dist/
