@@ -44,4 +44,4 @@ The project has no third-party package dependencies or automated test target. Th
 
 ## License
 
-No license has been selected yet. Add one before accepting external contributions.
+This project is licensed under the [MIT License](LICENSE).
