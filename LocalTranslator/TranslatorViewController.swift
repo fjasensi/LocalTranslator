@@ -22,14 +22,6 @@ private enum TranslationDirection: Equatable {
         }
     }
 
-    var sourceDisplayName: String {
-        self == .englishToSpanish ? "English" : "Spanish"
-    }
-
-    var targetDisplayName: String {
-        self == .englishToSpanish ? "Spanish" : "English"
-    }
-
     var arrow: String {
         self == .englishToSpanish ? "→" : "←"
     }
@@ -210,8 +202,6 @@ final class TranslatorViewController: NSViewController {
 
     @objc private func toggleDirection() {
         translationDirection = translationDirection.toggled
-        sourceLanguageLabel.stringValue = translationDirection.sourceDisplayName
-        targetLanguageLabel.stringValue = translationDirection.targetDisplayName
         directionButton.title = translationDirection.arrow
         statusLabel.stringValue = "Ready"
         outputTextView.string = ""
